@@ -3,12 +3,26 @@
     <el-row class="todo-header">
       {{ currentYearMonth }}{{ currentDay }}日
     </el-row>
-    <!-- <WeekDisplay
-      style="padding-bottom: 3px; border-bottom: 1px solid #909399;"
-      ref="weekDisplayRef"
-      :indicator-dates="[9, 10, 12]"
-    /> -->
-    <div class="todo-content">
+    <el-row class="todo-content">
+      <el-scrollbar class="content" v-if="todos.length > 0">
+        <row :class="todo.id===2?'finished item':'item'"  v-for="todo in todos" :key="todo.id">
+          <div class="time">
+            {{ todo.time }}
+          </div>
+          <div class="txt">
+            <span :class="`tag leve${todo.level}`"></span>
+            <div class="title ">
+              {{ todo.title }}
+            </div>
+          </div>
+          <div class="checkbox">
+            <el-checkbox v-model="checked1" size="large" />
+          </div>
+        </row>
+      </el-scrollbar>
+      <el-empty v-else style="height: 100%;width: 100%;" description="没有任务" />
+    </el-row>
+    <!-- <div class="todo-content">
       <template v-if="todos.length > 0">
         <div v-for="todo in todos" :key="todo.id" class="todo-item">
           <el-checkbox v-model="todo.completed" class="todo-checkbox" />
@@ -28,7 +42,7 @@
         </div>
       </template>
       <el-empty v-else style="height: 100%;" description="没有任务" />
-    </div>
+    </div> -->
     <div 
       class="add-button"
       @click="dialogVisible = true"
@@ -83,7 +97,36 @@ import * as v from 'vue'
 import WeekDisplay from '../components/WeekDisplay.vue'
 import { Plus, Position, Promotion, Clock, InfoFilled, Delete } from '@element-plus/icons-vue'
 
-const todos = v.ref([])
+const todos = v.ref([
+  {
+    id: 1,
+    title: '重要且紧急',
+    type: 'important-urgent',
+    level: '1',
+    time: '14:00',
+  },
+  {
+    id: 2,
+    title: '重要不紧急',
+    type: 'important-not-urgent',
+    level: '2',
+    time: '14:00',
+  },
+  {
+    id: 3,
+    title: '紧急不重要',
+    type: 'urgent-not-important',
+    level: '3',
+    time: '14:00',
+  },
+  {
+    id: 4,
+    title: '不重要不紧急',
+    type: 'urgent-not-important',
+    level: '4',
+    time: '14:00',
+  }
+])
 const checkedTodos = v.ref([])
 const dialogVisible = v.ref(false)
 const newTodo = v.ref({
@@ -152,6 +195,15 @@ const handleTouchEnd = (e) => {
 </script>
 
 <style scoped lang="scss">
+:deep(.el-scrollbar__wrap.el-scrollbar__wrap--hidden-default) {
+  width: 100%;
+}
+:deep(.el-scrollbar__wrap.el-scrollbar__wrap--hidden-default .el-scrollbar__view) {
+  width: 100%;
+  height: 100%;
+}
+</style>
+<style scoped lang="scss">
 .todo-container {
   height: 100%;
   width: 100%;
@@ -160,9 +212,102 @@ const handleTouchEnd = (e) => {
   box-sizing: border-box;
 
   .todo-header {
-    padding: 10px 10px 0;
+    padding: 10px;
     background-color: var(--bg-color);
     font-size: 17px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e4e7ed;
+  }
+
+  .todo-content {
+    flex: 1;
+    background-color: #f9fafb;
+    z-index: 1;
+    padding: 10px;
+    
+    .content {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      
+      .finished {
+        opacity: 0.7;
+        .txt {
+          .title {
+            text-decoration: line-through;
+            color: #909399;
+          }
+        }
+      }
+
+      .item {
+        display: flex;
+        width: 100%;
+        height: 70px;
+        margin-bottom: 10px;
+        background-color: #fff;
+        box-shadow: 0 0px 7px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        border: 1px solid #e4e7ed;
+
+        .time {
+          letter-spacing: 1px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 70px;
+          font-size: 14px;
+          color: #a1a1a1;
+       }
+
+       .txt {
+          display: flex;
+          align-items: center;
+          width: calc(100% - 140px);
+          font-size: 16px;
+          color: var(--text-color);
+         .tag {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+         }
+         .leve1 {
+            background-color: #F56C6C;
+         }
+
+        .leve2 {
+            background-color: #E6A23C;
+        }
+
+        .leve3 {
+            background-color: #67C23A;
+         }
+         .leve4 {
+            background-color: #909399;
+         }
+        .title {
+            letter-spacing: 1px;
+            margin-left: 1px;
+            display: flex;
+            font-size: 15px;
+            color: var(--text-color);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+         }
+       }
+
+      .checkbox {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 70px;
+          font-size: 16px;
+          color: var(--text-color);
+       }
+      }
+    }
   }
 }
 
@@ -174,12 +319,6 @@ const handleTouchEnd = (e) => {
 .current-date {
   font-size: 16px;
   color: var(--text-color);
-}
-.todo-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-  background-color: var(--bg-color);
 }
 .card-header {
   display: flex;
