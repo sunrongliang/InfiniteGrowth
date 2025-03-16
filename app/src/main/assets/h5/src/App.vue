@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import TodoView from './views/ScheduleView.vue'
+import TodoView from './views/TodoView.vue'
 import { Checked, Grid, Calendar, Timer } from '@element-plus/icons-vue'
 
 const activeIndex = ref('todo')
