@@ -22,27 +22,6 @@
       </el-scrollbar>
       <el-empty v-else style="height: 100%;width: 100%;" description="没有任务" />
     </el-row>
-    <!-- <div class="todo-content">
-      <template v-if="todos.length > 0">
-        <div v-for="todo in todos" :key="todo.id" class="todo-item">
-          <el-checkbox v-model="todo.completed" class="todo-checkbox" />
-          <div class="todo-info">
-            <div class="todo-title" :class="{ completed: todo.completed }">
-              {{ todo.title }}
-            </div>
-            <div class="todo-time" v-if="todo.datetime">
-              {{ formatDateTime(todo.datetime) }}
-            </div>
-          </div>
-          <div class="todo-actions">
-            <el-button link type="danger" @click="deleteTodo(todo.id)">
-              <el-icon><Delete /></el-icon>
-            </el-button>
-          </div>
-        </div>
-      </template>
-      <el-empty v-else style="height: 100%;" description="没有任务" />
-    </div> -->
     <div 
       class="add-button"
       @click="dialogVisible = true"
