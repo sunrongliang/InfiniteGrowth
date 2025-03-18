@@ -1,11 +1,20 @@
 <template>
   <el-row class="todo-container">
     <el-row class="todo-header">
-      {{ currentYearMonth }}{{ currentDay }}日
+      <span>
+        {{ currentYearMonth }}{{ currentDay }}日
+      </span>
+      <el-icon class="heard-icon"><Sunny /></el-icon>
     </el-row>
     <el-row class="todo-content">
       <el-scrollbar class="content" v-if="todos.length > 0">
-        <row :class="todo.id===2?'finished item':'item'"  v-for="todo in todos" :key="todo.id">
+        <row
+          :class="todo.id===2?'finished item':'item'"
+          v-for="todo in todos"
+          :key="todo.id"
+          @touchstart="handleItemTouchStart($event, todo)"
+          @touchend="handleItemTouchEnd"
+          >
           <div class="time">
             {{ todo.time }}
           </div>
@@ -30,13 +39,15 @@
     >
       <el-icon class="add-icon"><Plus /></el-icon>
     </div>
+    
+    <!-- size="155" -->
     <el-drawer
       class="drawer"
       v-model="dialogVisible"
       :with-header="false"
       title="新增任务"
       direction="btt"
-      size="120px"
+      size="100"
       :show-close="false"
     >
       <template #default>
@@ -44,37 +55,72 @@
           <el-form :model="newTodo">
             <el-form-item>
               <el-input
-                style="width: calc(100% - 35px);"
+                class="title-input"
                 v-model="newTodo.title"
                 placeholder="请输入任务名称"
               />
+              <!-- 
+                v-show="newTodo.title.length > 0" -->
               <el-button
-                v-show="newTodo.title.length > 0"
                 link
                 @click="addTodo"
                 class="drawer-button">
                 <el-icon><Promotion /></el-icon>
               </el-button>
             </el-form-item>
-            <el-form-item>
-              <el-button link @click="addTodo" class="drawer-button">
+            <el-form-item style="border-bottom: 1px solid #e4e7ed;padding: 5px;">
+              <el-button link @click="addTodo" class="param-btu">
                 <el-icon><Clock /></el-icon>
               </el-button>
-              <el-button link @click="addTodo" class="drawer-button" style="margin-left: 10px;">
-                <el-icon><InfoFilled /></el-icon>
+              <el-button link @click="addTodo" class="param-btu">
+                <el-icon><WarnTriangleFilled /></el-icon>
               </el-button>
             </el-form-item>
+            <!-- <el-form-item>
+              <div class="date-dom">
+                <span>是否选取结束日期</span>
+                <el-date-picker
+                  type="date"
+                  placeholder="最后期限"
+                  size="default"
+                />
+              </div>
+              <el-switch v-model="value" />
+            </el-form-item> -->
+            <!-- <el-form-item>
+              <el-radio-group v-model="radio" style="padding-left: 10px;">
+                <el-radio :value="3"><el-icon class="type-icon type-icon-1"><WarnTriangleFilled /></el-icon></el-radio>
+                <el-radio :value="6"><el-icon class="type-icon type-icon-2"><WarningFilled /></el-icon></el-radio>
+                <el-radio :value="9"><el-icon class="type-icon type-icon-3"><InfoFilled /></el-icon></el-radio>
+                <el-radio :value="9"><el-icon class="type-icon type-icon-4"><Checked /></el-icon></el-radio>
+              </el-radio-group>
+            </el-form-item> -->
           </el-form>
         </div>
       </template>
     </el-drawer>
+
+    <!-- <el-dialog
+    v-model="dialogVisible"
+    title="Tips"
+    width="500"
+    :before-close="handleClose"
+    >
+      <span>This is a message</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="dialogVisible = false">
+            Confirm
+          </el-button>
+        </div>
+      </template>
+    </el-dialog> -->
   </el-row>
 </template>
 
 <script setup>
 import * as v from 'vue'
-import WeekDisplay from '../components/WeekDisplay.vue'
-import { Plus, Position, Promotion, Clock, InfoFilled, Delete } from '@element-plus/icons-vue'
 
 const todos = v.ref([
   {
@@ -124,6 +170,20 @@ const currentDay = v.computed(() => {
   return currentDate.value.getDate()
 })
 
+const actionDialogVisible = v.ref(false)
+const longPressTimer = v.ref(null)
+
+const handleItemTouchStart = (e, todo) => {
+  longPressTimer.value = setTimeout(() => {
+    actionDialogVisible.value = true
+    alert('长按了')
+  }, 500) // 500ms 长按时间
+}
+const handleItemTouchEnd = () => {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value)
+  }
+}
 // 监听选中状态变化
 v.watch(checkedTodos, (newVal) => {
   todos.value = todos.value.map(todo => ({
@@ -181,6 +241,18 @@ const handleTouchEnd = (e) => {
   width: 100%;
   height: 100%;
 }
+:deep(.el-drawer__body) {
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+:deep(.el-input__wrapper) {
+  box-shadow: none !important;
+  background: none;
+}
+:deep(.el-radio) {
+  margin-right: 50px;
+}
 </style>
 <style scoped lang="scss">
 .todo-container {
@@ -196,6 +268,13 @@ const handleTouchEnd = (e) => {
     font-size: 17px;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid #e4e7ed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+   .heard-icon {
+      font-size: 24px;
+    }
   }
 
   .todo-content {
@@ -288,119 +367,91 @@ const handleTouchEnd = (e) => {
       }
     }
   }
-}
-
-.date-info {
-  display: flex;
-  align-items: center;
-}
-
-.current-date {
-  font-size: 16px;
-  color: var(--text-color);
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.todo-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-.todo-item:last-child {
-  border-bottom: none;
-}
-.completed {
-  text-decoration: line-through;
-  color: #999;
-}
-.add-button {
-  position: fixed;
-  right: 20px;
-  bottom: 80px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: var(--active-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  touch-action: manipulation;
-}
-.add-button:active {
-  transform: scale(0.9);
-  background-color: var(--active-color);
-}
-.add-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 50%;
-  pointer-events: none;
-}
-.add-icon {
-  font-size: 24px;
-  color: #fff;
-}
-/* 适配暗色模式 */
-@media (prefers-color-scheme: dark) {
+  
   .add-button {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    right: 20px;
+    bottom: 80px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--active-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+
+    &:active {
+      transform: scale(0.9);
+      background-color: var(--active-color);
+    }
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    
+    .add-icon {
+      font-size: 24px;
+      color: #fff;
+    }
   }
 }
-:deep(.drawer .el-drawer__body){
-  padding: 10px;
-}
-.drawer-content {
-  padding-top: 10px;
-}
-.drawer-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-color);
-}
-.drawer-button{
-  font-size: 24px;color: var(--active-color);
-}
-:deep(.el-input__wrapper) {
-  box-shadow: none !important;
-  padding: 0;
-}
-:deep(.el-input__inner) {
-  border: none;
-  padding: 0;
-  font-size: 16px;
-}
-.todo-checkbox {
-  margin-right: 12px;
-}
+.drawer {
+  .drawer-content {
+    .el-form-item {
+      margin-bottom: 10px;
+      .title-input {
+        width: calc(100% - 65px);
+        margin: 10px;
+        font-size: 16px;
+      }
+      .drawer-button {
+        font-size: 30px;
+        color: #409EFF;
+      }
+      .param-btu {
+        font-size: 20px;
+        margin-left: 10px;
+      }
+      .date-dom{
+        width: calc(100% - 50px);
 
-.todo-info {
-  flex: 1;
-  margin-right: 16px;
-}
+        span{
+          letter-spacing: 1.5px;
+          margin-left: 10px;
+          font-size: 15px;
+        }
+      }
+      .type-icon {
+        font-size: 20px;
+        margin-top: 10px;
+      }
+      .type-icon-1 {
+        color: #F56C6C;
+      }
+      .type-icon-2 {
+        color: #E6A23C;
+      }
+      .type-icon-3 {
+        color: #67C23A;
+      }
+     .type-icon-4 {
+        color: #909399;
+      }
 
-.todo-actions {
-  display: flex;
-  align-items: center;
-}
-:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: var(--active-color);
-  border-color: var(--active-color);
+    }
+  }
 }
 </style>
