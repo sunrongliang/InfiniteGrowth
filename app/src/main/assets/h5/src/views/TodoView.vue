@@ -59,9 +59,8 @@
                 v-model="newTodo.title"
                 placeholder="请输入任务名称"
               />
-              <!-- 
-                v-show="newTodo.title.length > 0" -->
               <el-button
+                v-show="newTodo.title.length > 0"
                 link
                 @click="addTodo"
                 class="drawer-button">
@@ -69,32 +68,29 @@
               </el-button>
             </el-form-item>
             <el-form-item style="border-bottom: 1px solid #e4e7ed;padding: 5px;">
-              <el-button link @click="addTodo" class="param-btu">
+              <!-- <el-button link @click="addTodo" class="param-btu">
                 <el-icon><Clock /></el-icon>
-              </el-button>
-              <el-button link @click="addTodo" class="param-btu">
-                <el-icon><WarnTriangleFilled /></el-icon>
-              </el-button>
+              </el-button> -->
+              <el-date-picker
+                style="width:140px;margin-right: 10px"
+                v-model="datea"
+                type="date"
+                placeholder="Pick a day"
+                :size="size"
+              />
+              <el-popover :visible="visible" placement="top" :width="160">
+                  <p>Are you sure to delete this?</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button size="small" text @click="visible = false">cancel</el-button>
+                    <el-button size="small" type="primary" @click="visible = false">
+                      confirm
+                    </el-button>
+                  </div>
+                  <template #reference>
+                    <div class="type-div leve1">Ⅰ</div>>
+                  </template>
+              </el-popover>
             </el-form-item>
-            <!-- <el-form-item>
-              <div class="date-dom">
-                <span>是否选取结束日期</span>
-                <el-date-picker
-                  type="date"
-                  placeholder="最后期限"
-                  size="default"
-                />
-              </div>
-              <el-switch v-model="value" />
-            </el-form-item> -->
-            <!-- <el-form-item>
-              <el-radio-group v-model="radio" style="padding-left: 10px;">
-                <el-radio :value="3"><el-icon class="type-icon type-icon-1"><WarnTriangleFilled /></el-icon></el-radio>
-                <el-radio :value="6"><el-icon class="type-icon type-icon-2"><WarningFilled /></el-icon></el-radio>
-                <el-radio :value="9"><el-icon class="type-icon type-icon-3"><InfoFilled /></el-icon></el-radio>
-                <el-radio :value="9"><el-icon class="type-icon type-icon-4"><Checked /></el-icon></el-radio>
-              </el-radio-group>
-            </el-form-item> -->
           </el-form>
         </div>
       </template>
@@ -122,6 +118,7 @@
 <script setup>
 import * as v from 'vue'
 
+const datea = v.ref(new Date())
 const todos = v.ref([
   {
     id: 1,
@@ -255,6 +252,35 @@ const handleTouchEnd = (e) => {
 }
 </style>
 <style scoped lang="scss">
+
+.leve1 {
+  background-color: #F56C6C;
+}
+
+.leve2 {
+  background-color: #E6A23C;
+}
+
+.leve3 {
+    background-color: #67C23A;
+}
+.leve4 {
+    background-color: #909399;
+}
+.type-icon-1 {
+  color: #F56C6C;
+}
+.type-icon-2 {
+  color: #E6A23C;
+}
+.type-icon-3 {
+  color: #67C23A;
+}
+.type-icon-4 {
+  color: #909399;
+}
+</style>
+<style scoped lang="scss">
 .todo-container {
   height: 100%;
   width: 100%;
@@ -329,20 +355,6 @@ const handleTouchEnd = (e) => {
             height: 8px;
             border-radius: 50%;
             margin-right: 4px;
-         }
-         .leve1 {
-            background-color: #F56C6C;
-         }
-
-        .leve2 {
-            background-color: #E6A23C;
-        }
-
-        .leve3 {
-            background-color: #67C23A;
-         }
-         .leve4 {
-            background-color: #909399;
          }
         .title {
             letter-spacing: 1px;
@@ -425,30 +437,14 @@ const handleTouchEnd = (e) => {
         font-size: 20px;
         margin-left: 10px;
       }
-      .date-dom{
-        width: calc(100% - 50px);
-
-        span{
-          letter-spacing: 1.5px;
-          margin-left: 10px;
-          font-size: 15px;
-        }
-      }
-      .type-icon {
-        font-size: 20px;
-        margin-top: 10px;
-      }
-      .type-icon-1 {
-        color: #F56C6C;
-      }
-      .type-icon-2 {
-        color: #E6A23C;
-      }
-      .type-icon-3 {
-        color: #67C23A;
-      }
-     .type-icon-4 {
-        color: #909399;
+      .type-div  {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
     }
