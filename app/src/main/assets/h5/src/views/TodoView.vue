@@ -2,7 +2,7 @@
   <el-row class="todo-container">
     <el-row class="todo-header">
       <span>
-        {{ currentYearMonth }}{{ currentDay }}日
+        {{ vdata.today }}日
       </span>
       <el-icon class="heard-icon"><Sunny /></el-icon>
     </el-row>
@@ -33,7 +33,7 @@
     </el-row>
     <div 
       class="add-button"
-      @click="dialogVisible = true"
+      @click="addTodoClick"
       @touchstart="handleTouchStart"
       @touchend="handleTouchEnd"
     >
@@ -43,7 +43,7 @@
     <!-- size="155" -->
     <el-drawer
       class="drawer"
-      v-model="dialogVisible"
+      v-model="vdata.drawerVisible"
       :with-header="false"
       title="新增任务"
       direction="btt"
@@ -79,15 +79,22 @@
                 :size="size"
               />
               <el-popover :visible="visible" placement="top" :width="160">
-                  <p>Are you sure to delete this?</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="small" text @click="visible = false">cancel</el-button>
-                    <el-button size="small" type="primary" @click="visible = false">
-                      confirm
-                    </el-button>
+                     <div @click="changeLevel('1')">
+                       I <span style="margin-right: 10;">重要且紧急</span>
+                     </div>
+                     <div @click="changeLevel('2')">
+                       II<span style="margin-right: 10;">紧急不重要</span>
+                     </div>
+                     <div  @click="changeLevel('3')">
+                       III<span style="margin-right: 10;">重要不紧急</span>
+                     </div>
+                     <div  @click="changeLevel('4')">
+                       IV<span style="margin-right: 10;">不紧急不重要</span>
+                     </div>
                   </div>
                   <template #reference>
-                    <div class="type-div leve1">Ⅰ</div>>
+                    <div class="type-div leve1">Ⅰ</div>
                   </template>
               </el-popover>
             </el-form-item>
@@ -118,8 +125,15 @@
 <script setup>
 import * as v from 'vue'
 
-const datea = v.ref(new Date())
-const todos = v.ref([
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}年${month}月${day}日`;
+}
+const today = formatDate(new Date());
+const vdata = v.reactive({
+  todos: [
   {
     id: 1,
     title: '重要且紧急',
@@ -139,16 +153,28 @@ const todos = v.ref([
     title: '紧急不重要',
     type: 'urgent-not-important',
     level: '3',
-    time: '14:00',
+    date: '14:00',
   },
   {
     id: 4,
     title: '不重要不紧急',
     type: 'urgent-not-important',
     level: '4',
-    time: '14:00',
+    date: '14:00',
   }
-])
+  ],
+  today: today,
+  drawerVisible: false,
+  formData: {
+    title: '重要且紧急',
+    level: '1',
+    date: '01-01',
+  }
+})
+
+const addTodoClick = () => {
+  vdata.drawerVisible = true
+}
 const checkedTodos = v.ref([])
 const dialogVisible = v.ref(false)
 const newTodo = v.ref({
